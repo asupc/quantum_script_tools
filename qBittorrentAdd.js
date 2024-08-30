@@ -17,58 +17,22 @@
  * 
  * */
 
-const got = require('got');
-var FormData = require('form-data');
 const {
     sendNotify
 } = require('./quantum');
 
 const {
-    qblogin
+    qblogin, addTorrents
 } = require('./qBittorrentBase');
 
-const api = got.extend({
-    retry: { limit: 0 },
-});
-
 !(async () => {
-    var qBittorrentURL = process.env.qBittorrentURL
+    const qBittorrentURL = process.env.qBittorrentURL
     if (!qBittorrentURL) {
         await sendNotify("未设置qBittorrent服务地址，请添加量子变量 ：qBittorrentURL。")
         return;
     }
-    if (qBittorrentURL.startsWith("http") == -1) {
-        qBittorrentURL = "http://" + qBittorrentURL;
-    }
-    qBittorrentURL = qBittorrentURL.trimEnd("/");
-
-
-    var cookie = await qblogin(qBittorrentURL);
-    if (cookie) {
-        console.log("认证返回cookie：" + cookie)
-    }
-
-    var data = new FormData();
-    data.append('urls', process.env.command);
-    data.append('autoTMM', 'true');
-    data.append('paused', 'false');
-    data.append('contentLayout', 'Original');
-    console.log("磁力信息：" + process.env.command);
-    var config = {
-        method: 'post',
-        url: qBittorrentURL + '/api/v2/torrents/add',
-        headers: {
-            Cookie: cookie
-        },
-        body: data
-    };
-    await api(config).then(async response => {
-        console.log(response.body);
-        await sendNotify("磁力任务添加结果：" + response.body)
-    }).catch(async function (error) {
-        await sendNotify(`添加磁力任务失败了：
-${error.name}
-${error.code}`)
-        console.log(error)
-    });
-})().catch((e) => {console.log("脚本异常：" + e);});
+    const cookie = await qblogin();
+    await addTorrents(cookie, process.env.command);
+})().catch((e) => {
+    console.log("脚本异常：" + e);
+});
