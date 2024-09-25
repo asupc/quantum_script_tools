@@ -32,7 +32,7 @@ const {
         return;
     }
     const cookie = await qblogin();
-    await addTorrents(cookie, process.env.command);
+    await sendNotify(await addTorrents(cookie, process.env.command));
 })().catch((e) => {
     console.log("脚本异常：" + e);
 });
