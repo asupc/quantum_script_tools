@@ -27,13 +27,10 @@ const urlConfigDataType = "video_update_monitoring_item"
         Data4: "是"
     });
 
-
     for (let p = 0; p < dygangsUrls.length; p++) {
-
         const dygangsUrl = dygangsUrls[p];
         let videoName = dygangsUrl.Data1;
         let url = dygangsUrl.Data2;
-
         const response = await api(url, { responseType: 'buffer' });
         const html = iconv.decode(response.body, 'gb2312'); // 或根据需要的编码更改
         const $ = cheerio.load(html);
@@ -84,7 +81,14 @@ qbpassword  qb登录密码`)
                     }
                 }
             }
-            await sendNotify(msg, true)
+            if (dygangsUrl.Data5 == "是") {
+                for (let x = 0; x < newDatas.length; x++) {
+                    const data = newDatas[x];
+                    await sendNotify(`${videoName}
+${data.Data3}
+${data.Data4}`, true)
+                }
+            }
         }
         if (count2 > 0) {
             console.log(`【${videoName}】过往已采集数量：【${count2}】`)
@@ -101,7 +105,8 @@ async function init() {
         Title1: "影片名",
         Title2: "来源",
         Title3: "自动下载",
-        Title4: "是否启用"
+        Title4: "是否启用",
+        Title5: "消息推送"
     });
     await addOrUpdateCustomDataTitle({
         Type: customDataType,
