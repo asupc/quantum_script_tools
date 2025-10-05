@@ -8,7 +8,7 @@
  */
 
 const cheerio = require('cheerio');
-const { api, sendNotify, addOrUpdateCustomDataTitle, getCustomData, addCustomData } = require('./quantum');
+const { api, sendNotify, addOrUpdateCustomDataTitle, getCustomData, addCustomData } = require('../quantum');
 
 const { qblogin, addTorrents } = require("./qBittorrentBase")
 
@@ -32,6 +32,7 @@ const urlConfigDataType = "video_update_monitoring_item"
         let videoName = dygangsUrl.Data1;
         let url = dygangsUrl.Data2;
         const response = await api(url, { responseType: 'buffer' });
+        // const html = response.body; // 或根据需要的编码更改
         const html = iconv.decode(response.body, 'gb2312'); // 或根据需要的编码更改
         const $ = cheerio.load(html);
         let newDatas = []
@@ -42,6 +43,10 @@ const urlConfigDataType = "video_update_monitoring_item"
         $('a[href^="magnet:?xt=urn:btih:"]').each((index, element) => {
             const link = element.attribs.href;
             const name = element.children[0].data
+            if (!name.includes('2160p') && !name.includes('4K')) {
+                console.log(`${videoName} 跳过不包含指定分辨率的项目：${name}`);
+                return; // 跳过不包含指定分辨率的项目
+            }
             if (datas.filter(n => n.Data4 == link).length > 0) {
                 count2++;
             } else {
@@ -53,6 +58,7 @@ const urlConfigDataType = "video_update_monitoring_item"
                     Data4: link,
                     Data15: dygangsUrl.Id
                 })
+                console.log(`${videoName}采集到新剧集：${name},${link}`)
             }
         });
         let downloadList = []
