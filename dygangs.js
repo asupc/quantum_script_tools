@@ -43,13 +43,13 @@ const urlConfigDataType = "video_update_monitoring_item"
         $('a[href^="magnet:?xt=urn:btih:"]').each((index, element) => {
             const link = element.attribs.href;
             const name = element.children[0].data
-            if (!name.includes('2160p') && !name.includes('4K')) {
-                console.log(`${videoName} 跳过不包含指定分辨率的项目：${name}`);
-                return; // 跳过不包含指定分辨率的项目
-            }
             if (datas.filter(n => n.Data4 == link).length > 0) {
                 count2++;
             } else {
+                if (!name.includes('2160p') && !name.includes('4K')) {
+                    console.log(`${videoName} 跳过不包含指定分辨率的项目：${name}`);
+                    return; // 跳过不包含指定分辨率的项目
+                }
                 newDatas.push({
                     Type: customDataType,
                     Data1: videoName,
