@@ -42,14 +42,10 @@ const urlConfigDataType = "video_update_monitoring_item"
         let count2 = 0;
         $('a[href^="magnet:?xt=urn:btih:"]').each((index, element) => {
             const link = element.attribs.href;
-            const name = element.children[0].data
+            const name = element.children[0].data.toUpperCase();
             if (datas.filter(n => n.Data4 == link).length > 0) {
                 count2++;
             } else {
-                if (!name.includes('2160p') && !name.includes('4K')) {
-                    console.log(`${videoName} 跳过不包含指定分辨率的项目：${name}`);
-                    return; // 跳过不包含指定分辨率的项目
-                }
                 newDatas.push({
                     Type: customDataType,
                     Data1: videoName,
@@ -78,6 +74,10 @@ qbpassword  qb登录密码`)
                     const cookie = await qblogin();
                     for (let x = 0; x < newDatas.length; x++) {
                         const data = newDatas[x];
+                        if (!data.Data3.includes('2160P') && !data.Data3.includes('4K')) {
+                            console.log(`${videoName} 跳过下载不包含指定分辨率的项目：${data.Data3}`);
+                            continue; // 跳过不包含指定分辨率的项目
+                        }
                         downloadList.push(data.Data4)
                         console.log("磁力下载提交结果----" + await addTorrents(cookie, data.Data4, videoName));
                     }
